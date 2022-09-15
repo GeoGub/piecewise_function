@@ -23,25 +23,35 @@ class Ordinate():
 
         section = Section(dot1, dot2)
         self.x_axios = [section]
-        self.dots = [dot1, dot2]
 
     def append_section(self, coords) -> None:
         dot = Dot(coords)
         if dot.x <= self.x_axios[0].dot1.x:
             section = Section(self.x_axios[0].dot1, dot)
+            self.x_axios.insert(0, section)
         elif dot.x >= self.x_axios[-1].dot2.x:
-            section = Section(self.x_axios[-1].dot2, dot) 
+            section = Section(self.x_axios[-1].dot2, dot)
+            self.x_axios.append(section) 
         else:
             raise Exception
-        self.x_axios.append(section)
-        self.dots.append(dot)
 
     def get_y(self, x: int) -> float:
+        # O(log n)
         if x < self.x_axios[0].dot1.x or x > self.x_axios[-1].dot2.x:
             raise Exception
-        for section in self.x_axios:
-            if section.dot1.x <= x <= section.dot2.x:
-                return x * section.a + section.b
+        y = None
+        mid = len(self.x_axios) // 2
+        low = 0
+        high = len(self.x_axios) - 1
+        while y is None and low <= high:
+            if  self.x_axios[mid].dot1.x <= x <= self.x_axios[mid].dot2.x:
+                y = x * self.x_axios[mid].a + self.x_axios[mid].b
+            elif self.x_axios[mid].dot1.x < x:
+                low = mid + 1
+            else:
+                high = mid -1
+            mid = (low + high)
+        return y
 
     def __str__(self) -> str:
         max_x_length = len(str(self.x_axios[-1].dot2.x))
@@ -63,9 +73,11 @@ class Ordinate():
 
 
 if __name__ == '__main__':
-    a = Ordinate(((0, 100), (10, 122)))
-    a.append_section((100, 1330))
-    print(a.get_y(5))
-    print(a.x_axios[1].a)
-    print(a)
+    piecewise_ordinate = Ordinate(((0, 100), (10, 122)))
+    piecewise_ordinate.append_section((30, 0))
+    piecewise_ordinate.append_section((35, 10))
+    piecewise_ordinate.append_section((40, 73))
+    piecewise_ordinate.append_section((-7, 33))
+    print(piecewise_ordinate.get_y(5))
+    print(piecewise_ordinate)
 
